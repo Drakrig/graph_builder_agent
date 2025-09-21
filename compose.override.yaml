@@ -1,0 +1,19 @@
+services:
+  memgraph:
+    volumes:
+      - ./memgraph/mg_lib:/var/lib/memgraph
+      - ./memgraph/mg_log:/var/log/memgraph
+  weaviate:
+    volumes:
+    - ../weaviate/database:/var/lib/weaviate
+  
+  ollama:
+    volumes:
+      - ../ollama_compose/ollama_data:/root/ollama/.ollama
+    deploy:
+      resources:
+          reservations:
+              devices:
+                  - driver: nvidia
+                    count: 1
+                    capabilities: [gpu]

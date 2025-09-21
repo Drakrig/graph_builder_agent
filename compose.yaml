@@ -1,0 +1,100 @@
+services:
+  #Memgraph and Memgraph section
+  memgraph:
+    image: memgraph/memgraph-mage
+    container_name: memgraph
+    ports:
+      - "7687:7687"
+      - "7444:7444"
+    user: 1000:1000
+    environment:
+      - MEMGRAPH_USER=${MEMGRAPH_USER}
+      - MEMGRAPH_PASSWORD=${MEMGRAPH_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "echo 'RETURN 0;' | mgconsole || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 0s
+    command: ["--log-level=TRACE"]
+
+  lab:
+    image: memgraph/lab
+    container_name: memgraph_lab
+    ports:
+      - "3000:3000"
+    environment:
+      QUICK_CONNECT_MG_HOST: memgraph
+      QUICK_CONNECT_MG_PORT: 7687
+    depends_on:
+      - memgraph
+  #Weaviate section
+  weaviate:
+    container_name: weaviate
+    command:
+    - --host
+    - 0.0.0.0
+    - --port
+    - '8080'
+    - --scheme
+    - http
+    image: cr.weaviate.io/semitechnologies/weaviate:1.32.4
+    ports:
+    - 8888:8080
+    - 50051:50051
+    restart: on-failure:0
+    environment:
+      LOG_LEVEL: 'debug'
+      QUERY_DEFAULTS_LIMIT: 20
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: "true"
+      PERSISTENCE_DATA_PATH: '/var/lib/weaviate'
+      QUERY_MAXIMUM_RESULTS: 10005
+      ENABLE_MODULES: 'text2vec-transformers,reranker-transformers' # Enable this module
+      TRANSFORMERS_INFERENCE_API: http://t2v-bge-base:8080  # Set the inference API endpoint
+      CLUSTER_HOSTNAME: 'node1'
+      RAFT_ENABLE_ONE_NODE_RECOVERY: 'true'
+      RERANKER_INFERENCE_API: http://reranker:8080
+    depends_on:
+      - t2v-bge-base
+      - reranker
+    networks:
+      weaviate_graph_rag:
+        ipv4_address: ${WEAVIATE_IP}
+  
+  t2v-bge-base:  # Set the name of the inference container
+    image: cr.weaviate.io/semitechnologies/transformers-inference:baai-bge-base-en-v1.5
+    container_name: weaviate_embedder
+    ports:
+      - 9090:8080
+    networks:
+      weaviate_graph_rag:
+        ipv4_address: ${EMBEDDER_IP}
+  
+  reranker:
+    image: semitechnologies/reranker-transformers:cross-encoder-ms-marco-MiniLM-L-6-v2
+    container_name: weaviate_reranker
+    ports:
+      - 9099:8080
+    networks:
+      weaviate_graph_rag:
+        ipv4_address: ${RERANKER_IP}
+  #Ollama section
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11435:11434"
+      - "11436:11435"
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_MODELS=/root/ollama/.ollama
+      - OLLAMA_KEEP_ALIVE=1
+      - OLLAMA_CONTEXT_LENGTH=102400
+
+networks:
+  weaviate_graph_rag:
+    ipam:
+      config:
+        - subnet: ${SUBNET}
+
+
