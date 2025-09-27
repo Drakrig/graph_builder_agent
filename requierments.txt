@@ -1,0 +1,5 @@
+json-repair
+langchain
+langgraph
+neo4j
+weaviate-client
