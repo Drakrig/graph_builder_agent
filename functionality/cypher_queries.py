@@ -1,0 +1,8 @@
+cypher_query_check_node_exist = """MATCH (n {{title: '{title}'}}) RETURN n"""
+cypher_query_create_node = """CREATE (n:{entity_type} {{title: '{title}', description: '{description}'}}) RETURN n"""
+cypher_query_create_relationship = """MATCH (a {{title: '{node1_title}'}}), (b {{title: '{node2_title}'}}) CREATE (a)-[r:{relationship} {{ {properties} }}]->(b) RETURN r"""
+cypher_query_find_nodes_relationships = """MATCH (a {{title: '{node1_title}'}})-[r]-(b {{title: '{node2_title}'}}) RETURN a.title,r,b.title"""
+cypher_query_check_relationship_exist = """MATCH (a {{title: '{node1_title}'}})-[r:{relationship}]->(b {{title: '{node2_title}'}}) RETURN a.title, r, b.title"""
+cypher_query_update_node_description = """MATCH (n {{title: '{title}'}}) SET n.description = "{description}" RETURN n"""
+cypher_query_update_relationship_properties = """MATCH (a {{title: '{node1_title}'}})-[r:{relationship}]->(b {{title: '{node2_title}'}}) SET {properties} RETURN r"""
+cypher_query_delete_relationship = """MATCH (a {{title: '{node1_title}'}})-[r:{relationship_type}]->(b {{title: '{node2_title}'}}) DELETE r"""
