@@ -17,6 +17,9 @@ services:
       retries: 3
       start_period: 0s
     command: ["--log-level=TRACE"]
+    networks:
+      weaviate_graph_rag:
+        ipv4_address: ${MEMGRAPH_IP}
 
   lab:
     image: memgraph/lab
@@ -28,6 +31,9 @@ services:
       QUICK_CONNECT_MG_PORT: 7687
     depends_on:
       - memgraph
+    networks:
+      weaviate_graph_rag:
+        ipv4_address: ${MEMGRAPH_LAB_IP}
   #Weaviate section
   weaviate:
     container_name: weaviate
@@ -90,11 +96,13 @@ services:
       - OLLAMA_MODELS=/root/ollama/.ollama
       - OLLAMA_KEEP_ALIVE=1
       - OLLAMA_CONTEXT_LENGTH=102400
+    networks:
+      weaviate_graph_rag:
+        ipv4_address: ${OLLAMA_IP}
 
 networks:
-  weaviate_graph_rag:
+  graph_building_agent_net:
+    name: graph_building_agent_net
     ipam:
       config:
         - subnet: ${SUBNET}
-
-

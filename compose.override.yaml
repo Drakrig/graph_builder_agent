@@ -9,11 +9,11 @@ services:
   
   ollama:
     volumes:
-      - ../ollama_compose/ollama_data:/root/ollama/.ollama
+      - /home/drakrig/Projects/ML/ollama_compose/ollama_data:/root/ollama/.ollama
     deploy:
       resources:
           reservations:
               devices:
-                  - driver: nvidia
-                    count: 1
-                    capabilities: [gpu]
+                - driver: nvidia
+                  device_ids: ['0']
+                  capabilities: ['gpu']
