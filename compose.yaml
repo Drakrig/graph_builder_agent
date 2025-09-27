@@ -18,7 +18,7 @@ services:
       start_period: 0s
     command: ["--log-level=TRACE"]
     networks:
-      weaviate_graph_rag:
+      graph_building_agent_net:
         ipv4_address: ${MEMGRAPH_IP}
 
   lab:
@@ -32,7 +32,7 @@ services:
     depends_on:
       - memgraph
     networks:
-      weaviate_graph_rag:
+      graph_building_agent_net:
         ipv4_address: ${MEMGRAPH_LAB_IP}
   #Weaviate section
   weaviate:
@@ -64,7 +64,7 @@ services:
       - t2v-bge-base
       - reranker
     networks:
-      weaviate_graph_rag:
+      graph_building_agent_net:
         ipv4_address: ${WEAVIATE_IP}
   
   t2v-bge-base:  # Set the name of the inference container
@@ -73,7 +73,7 @@ services:
     ports:
       - 9090:8080
     networks:
-      weaviate_graph_rag:
+      graph_building_agent_net:
         ipv4_address: ${EMBEDDER_IP}
   
   reranker:
@@ -82,7 +82,7 @@ services:
     ports:
       - 9099:8080
     networks:
-      weaviate_graph_rag:
+      graph_building_agent_net:
         ipv4_address: ${RERANKER_IP}
   #Ollama section
   ollama:
@@ -97,7 +97,7 @@ services:
       - OLLAMA_KEEP_ALIVE=1
       - OLLAMA_CONTEXT_LENGTH=102400
     networks:
-      weaviate_graph_rag:
+      graph_building_agent_net:
         ipv4_address: ${OLLAMA_IP}
 
 networks:
