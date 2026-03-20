@@ -26,11 +26,12 @@ def check_for_reasoning(text:str, token="</think>")->tuple[str|None, str]:
     :return: Reasoning if found, else None and response text
     :rtype: tuple[str|None, str]
     """
-    reasoning_token = "</think>"
-    if isinstance(text, str) and reasoning_token in text:
-        # Remove reasoning content
-        reasoning, response = text.split(reasoning_token)
-        return reasoning, response
+    reasoning_tokens = ["</think>", "assistantfinal"]
+    for reasoning_token in reasoning_tokens:
+        if isinstance(text, str) and reasoning_token in text:
+            # Remove reasoning content
+            reasoning, response = text.split(reasoning_token)
+            return reasoning, response
     return None, text
 
 def merge_nodes_descriptions(
@@ -110,17 +111,19 @@ def euristic_agent_compare_nodes(
     reasoning, response = check_for_reasoning(response.content)
     try:
         result = json.loads(response)
+        logging.debug(f"LLM result: {result}")
         if "action_taken" not in result:
-            raise ValueError("Missing 'action_taken' in response")
+            raise ValueError(f"Missing 'action_taken' in response\nResponse: {response}")
         return reasoning, result
     except json.JSONDecodeError as e:
         logging.debug("Error decoding JSON")
         repaired_response = repair_json(response)
         try:
             result = json.loads(repaired_response)
+            logging.debug(f"LLM result: {result}")
             logging.debug("JSON successfully repaired")
             if "action_taken" not in result:
-                raise ValueError("Missing 'action_taken' in repaired response")
+                raise ValueError(f"Missing 'action_taken' in response\nResponse: {response}")
             return reasoning, result
         except json.JSONDecodeError as e:
             logging.debug(f"Error decoding repaired JSON: {e}")

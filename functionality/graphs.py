@@ -67,7 +67,7 @@ def update_node_description(node: KnowledgeNodeState):
     """
     query = cypher_query_update_node_description.format(
         title=node["title"].replace("'", "\\'").replace("/", "\\/"),
-        description=node["description"].replace("'", "\\'"),
+        description=node["description"].replace("'", "\\'").replace('"', '\\"'),
         )
     logging.debug(f"Update node query: {query}")
     with GraphDatabase.driver(os.getenv("MEMGRAPH_URI"), auth=(os.getenv("MEMGRAPH_USER"),os.getenv("MEMGRAPH_PASSWORD"))) as client:
